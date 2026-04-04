@@ -1791,7 +1791,7 @@ function generateRecipe(){
 
   var loadMsg = document.getElementById('loadingMsg');
 
-  vibeFetch( {
+  fetch('/api/claude', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
@@ -2202,7 +2202,7 @@ async function findSubstitution(){
   if(!concern){showToast("Tell us what you're missing!");return;}
   var btn=event.target;btn.textContent='...';btn.disabled=true;
   try{
-    var resp=await vibeFetch({method:'POST',headers:{'Content-Type':'application/json'},
+    var resp=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:400,
         messages:[{role:'user',content:'A home cook says: "'+concern+'". Give one clever kitchen substitution in 2 sentences. Be specific and practical. No preamble.'}]})});
     var data=await resp.json();
@@ -2225,7 +2225,7 @@ async function regenWithout(){
   goTo('screen-loading');startLoadingAnimation();
   var prompt=buildPrompt()+'\n\nIMPORTANT: User does NOT have "'+concern+'". Exclude it entirely and find a workaround.';
   try{
-    var resp=await vibeFetch({method:'POST',headers:{'Content-Type':'application/json'},
+    var resp=await fetch('/api/claude',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1400,system:'You are a culinary AI. Respond ONLY compact JSON. No markdown. Max 4 steps, 2 bullets each.',messages:[{role:'user',content:prompt}]})});
     var data=await resp.json();
     var recipe=JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
@@ -2594,7 +2594,7 @@ function generateDishImage(r){
     + '</g>\n\n'
     + 'OUTPUT: Return ONLY the <g id="food"> element. Start exactly with <g id="food"> and end with </g>. No SVG wrapper. No defs. No plate. No text. No markdown.';
 
-  vibeFetch( {
+  fetch('/api/claude', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
@@ -3401,36 +3401,6 @@ addIngRow();addIngRow();
   });
 })();
 
-// ── POSTMESSAGE FETCH BRIDGE ─────────────────────────────────────────────────
-// Parent artifact has sandbox API access; we relay requests through postMessage
-var _vibeFetchCallbacks = {};
-var _vibeFetchId = 0;
-
-window.addEventListener('message', function(e){
-  var d = e.data;
-  if(!d || d.type !== 'vibe_response') return;
-  var cb = _vibeFetchCallbacks[d.id];
-  if(!cb) return;
-  delete _vibeFetchCallbacks[d.id];
-  if(d.error){ cb.reject(new Error(d.error)); }
-  else { cb.resolve(d.data); }
-});
-
-function vibeFetch(opts){
-  return new Promise(function(resolve, reject){
-    var id = ++_vibeFetchId;
-    _vibeFetchCallbacks[id] = {resolve: resolve, reject: reject};
-    window.parent.postMessage({type:'vibe_request', id:id, opts:opts}, '*');
-    // Timeout
-    setTimeout(function(){
-      if(_vibeFetchCallbacks[id]){
-        delete _vibeFetchCallbacks[id];
-        reject(new Error('Request timed out'));
-      }
-    }, 180000);
-  });
-}
-// ─────────────────────────────────────────────────────────────────────────────
 </script>
 </body>
 
