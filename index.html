@@ -1901,8 +1901,21 @@ function buildPrompt(){
     };
     var id = freeState.identity || 'uncharted_explorer';
     var trendLine = freeState.trendingRef
-      ? '\nViral reference: '+freeState.trendingRef+' -- extract its creative DNA (technique, flavour logic, cultural hook). Do NOT reproduce it. Build something new with that same energy.'
+      ? '\nViral reference: '+freeState.trendingRef+' -- extract its creative DNA. Do NOT reproduce it. Build something new with that energy.'
       : '';
+    var cx = '';
+    if(freeState.avoid)       cx += '- Dietary avoid: '+freeState.avoid+'\n';
+    if(freeState.allergies)   cx += '- Allergies (strictly exclude): '+freeState.allergies+'\n';
+    if(freeState.mustMethod)  cx += '- Must use technique: '+freeState.mustMethod+'\n';
+    if(freeState.avoidMethod) cx += '- Avoid technique: '+freeState.avoidMethod+'\n';
+    var constraintBlock = cx ? '\nCONSTRAINTS:\n'+cx : '';
+    var depthMap = {
+      restrained: 'INGREDIENT COUNT: 4-7 ingredients max. Every element essential, nothing redundant.',
+      composed:   'INGREDIENT COUNT: 8-11 ingredients. Clear hero, supporting cast, acid, fat, texture, herb.',
+      elaborate:  'INGREDIENT COUNT: 12-16 ingredients. Full Michelin architecture: hero, aromatics, acid, emulsion, multiple textures, microgreens, sauce layers.'
+    };
+    var d = freeState.depth || 'restrained';
+    var depthLine = depthMap[d] || depthMap.restrained;
     return 'Create a unique never-before-existed recipe for 2 servings.\n'
       +'CULINARY IDENTITY: '+(identDesc[id]||id)+'\n\n'
       +'CONTEXT:\n'
@@ -1913,24 +1926,8 @@ function buildPrompt(){
       +'- Flavour mood: '+freeState.flavourMood+'\n'
       +(freeState.wildcard ? '- Hero ingredient: '+freeState.wildcard+' (build the dish around this)\n' : '')
       +trendLine
-      +(constraintBlock ? '\n'+constraintBlock : '')
-      +'\n\n'
-      +(function(){
-        var d = freeState.depth || 'restrained';
-        // Build constraint lines
-        var cx = '';
-        if(freeState.avoid)       cx += '- Dietary avoid: '+freeState.avoid+'\n';
-        if(freeState.allergies)   cx += '- Allergies (strictly exclude): '+freeState.allergies+'\n';
-        if(freeState.mustMethod)  cx += '- Must use technique: '+freeState.mustMethod+'\n';
-        if(freeState.avoidMethod) cx += '- Avoid technique: '+freeState.avoidMethod+'\n';
-        var constraintBlock = cx ? '\nCONSTRAINTS:\n'+cx : '';
-        var depthMap = {
-          restrained: 'INGREDIENT COUNT: 4-7 ingredients max. Every element must be essential — nothing decorative, nothing redundant. Minimalist Michelin logic.',
-          composed:   'INGREDIENT COUNT: 8-11 ingredients. Balanced complexity — a clear hero, supporting cast, acid, fat, texture, fresh herb.',
-          elaborate:  'INGREDIENT COUNT: 12-16 ingredients. Full Michelin architecture: hero, aromatics, acid, fat/emulsion, multiple textures, microgreens, sauce components, seasoning layers.'
-        };
-        return depthMap[d] || depthMap.restrained;
-      }())+' \n\n'
+      +constraintBlock
+      +'\n\n'+depthLine+'\n\n'
       +'Each step: title (short), bullets (2-3 action sentences), sketchHint (one word).\n'
       +'upgradeTips: 2 sourcing tips naming exact variety/producer/region and why it elevates this dish.\n'
       +'Return ONLY valid JSON:\n'
