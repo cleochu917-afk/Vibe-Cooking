@@ -1017,7 +1017,37 @@ body{font-family:'Nunito',sans-serif;background:var(--tile-light);min-height:100
       </div>
     </div>
 
-    <div style="display:flex;justify-content:flex-end;padding-bottom:8px;margin-top:8px;">
+    <!-- CONSTRAINTS TOGGLE -->
+    <div class="free-card" style="margin-top:8px;">
+      <div onclick="toggleFreeConstraints()" style="font-family:'Press Start 2P',monospace;font-size:7px;color:#8b6040;cursor:pointer;display:flex;align-items:center;gap:8px;user-select:none;">
+        <span id="constraintsArrow" style="display:inline-block;transition:transform .2s;">&#9654;</span>
+        CONSTRAINTS <span style="font-size:6px;opacity:.5;margin-left:4px;">(dietary, allergies, methods)</span>
+      </div>
+      <div id="freeConstraintsPanel" style="display:none;margin-top:12px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+          <div>
+            <div style="font-family:'Press Start 2P',monospace;font-size:6px;color:#6b5040;margin-bottom:6px;letter-spacing:.5px;">DIETARY AVOID</div>
+            <input type="text" id="freeAvoid" class="free-input" placeholder="vegan, gluten-free, dairy-free..."/>
+          </div>
+          <div>
+            <div style="font-family:'Press Start 2P',monospace;font-size:6px;color:#6b5040;margin-bottom:6px;letter-spacing:.5px;">ALLERGIES</div>
+            <input type="text" id="freeAllergies" class="free-input" placeholder="nuts, shellfish, eggs..."/>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <div style="font-family:'Press Start 2P',monospace;font-size:6px;color:#6b5040;margin-bottom:6px;letter-spacing:.5px;">MUST USE METHOD</div>
+            <input type="text" id="freeMustMethod" class="free-input" placeholder="sous vide, open flame, raw..."/>
+          </div>
+          <div>
+            <div style="font-family:'Press Start 2P',monospace;font-size:6px;color:#6b5040;margin-bottom:6px;letter-spacing:.5px;">AVOID METHOD</div>
+            <input type="text" id="freeAvoidMethod" class="free-input" placeholder="deep fry, microwave, boil..."/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;padding-bottom:8px;margin-top:12px;">
       <button class="pixel-btn primary" onclick="goFreeToHealth()">
         GENERATE RECIPE &rarr;
       </button>
@@ -1872,9 +1902,18 @@ function buildPrompt(){
       +'- Meal time: '+freeState.mealTime+'\n'
       +'- Flavour mood: '+freeState.flavourMood+'\n'
       +(freeState.wildcard ? '- Hero ingredient: '+freeState.wildcard+' (build the dish around this)\n' : '')
-      +trendLine+'\n\n'
+      +trendLine
+      +(constraintBlock ? '\n'+constraintBlock : '')
+      +'\n\n'
       +(function(){
         var d = freeState.depth || 'restrained';
+        // Build constraint lines
+        var cx = '';
+        if(freeState.avoid)       cx += '- Dietary avoid: '+freeState.avoid+'\n';
+        if(freeState.allergies)   cx += '- Allergies (strictly exclude): '+freeState.allergies+'\n';
+        if(freeState.mustMethod)  cx += '- Must use technique: '+freeState.mustMethod+'\n';
+        if(freeState.avoidMethod) cx += '- Avoid technique: '+freeState.avoidMethod+'\n';
+        var constraintBlock = cx ? '\nCONSTRAINTS:\n'+cx : '';
         var depthMap = {
           restrained: 'INGREDIENT COUNT: 4-7 ingredients max. Every element must be essential — nothing decorative, nothing redundant. Minimalist Michelin logic.',
           composed:   'INGREDIENT COUNT: 8-11 ingredients. Balanced complexity — a clear hero, supporting cast, acid, fat, texture, fresh herb.',
@@ -2819,7 +2858,11 @@ function goFreeToHealth(){
   freeState.flavourMood= fl  ? fl.textContent.trim()  : 'Bold & punchy';
   freeState.wildcard   = document.getElementById('wildcardInput').value.trim();
   var depthEl = document.querySelector('[data-depth].free-chip.selected');
-  freeState.depth = depthEl ? depthEl.getAttribute('data-depth') : 'restrained';
+  freeState.depth       = depthEl ? depthEl.getAttribute('data-depth') : 'restrained';
+  freeState.avoid       = document.getElementById('freeAvoid').value.trim();
+  freeState.allergies   = document.getElementById('freeAllergies').value.trim();
+  freeState.mustMethod  = document.getElementById('freeMustMethod').value.trim();
+  freeState.avoidMethod = document.getElementById('freeAvoidMethod').value.trim();
   freeState.trendingRef= document.getElementById('trendingInput').value.trim();
 
   state.ingredients = [];
@@ -3380,6 +3423,15 @@ window.addEventListener('load',function(){
 function selectDepth(el){
   el.closest('.free-card').querySelectorAll('.free-chip').forEach(function(c){ c.classList.remove('selected'); });
   el.classList.add('selected');
+}
+
+
+function toggleFreeConstraints(){
+  var panel = document.getElementById('freeConstraintsPanel');
+  var arrow = document.getElementById('constraintsArrow');
+  var open = panel.style.display === 'none';
+  panel.style.display = open ? 'block' : 'none';
+  arrow.style.transform = open ? 'rotate(90deg)' : '';
 }
 
 addIngRow();addIngRow();
