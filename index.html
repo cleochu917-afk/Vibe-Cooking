@@ -40,12 +40,12 @@ body{font-family:'Nunito',sans-serif;background:var(--tile-light);min-height:100
 ::-webkit-scrollbar-thumb{background:var(--wood-panel);border:2px solid var(--dark-ink);}
 
 /* ===== KITCHEN SCREEN ===== */
-#screen-kitchen{align-items:stretch;justify-content:flex-start;background:linear-gradient(180deg,#b8d8f0 0%,#d4e8c0 55%,#e8d4a0 100%);height:100vh;max-height:100vh;overflow:hidden;}
+#screen-kitchen{align-items:stretch;justify-content:flex-start;background:#2a1a0a;}
 .kitchen-top-bar{width:100%;background:var(--wood-dark);border-bottom:4px solid var(--dark-ink);padding:8px 24px;display:flex;align-items:center;justify-content:space-between;}
 .game-title{font-family:'Press Start 2P',monospace;font-size:13px;color:var(--pixel-yellow);text-shadow:3px 3px 0 var(--dark-ink);letter-spacing:2px;}
-.kitchen-scene{width:100%;max-width:100%;margin:0 auto;padding:0;flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden;}
-.kitchen-svg-wrap{width:100%;flex:1;min-height:0;position:relative;overflow:hidden;}
-.kitchen-svg-wrap svg{width:100%;height:100%;display:block;position:absolute;top:0;left:0;}
+.kitchen-scene{width:100%;flex:1;min-height:0;display:flex;flex-direction:column;}
+.kitchen-svg-wrap{width:100%;flex:1;min-height:0;}
+.kitchen-svg-wrap svg{width:100%;height:100%;display:block;}
 #fridge-hotspot,#cookbook-hotspot{transition:filter .15s;}
 #fridge-hotspot:hover{filter:drop-shadow(0 0 10px rgba(240,208,96,.9)) brightness(1.08);cursor:pointer;}
 #cookbook-hotspot:hover{filter:drop-shadow(0 0 8px rgba(240,208,96,.8)) brightness(1.12);cursor:pointer;}
@@ -841,12 +841,13 @@ body{font-family:'Nunito',sans-serif;background:var(--tile-light);min-height:100
         </style>
 
         <ellipse cx="480" cy="575" rx="470" ry="10" fill="rgba(0,0,0,0.1)"/>
+        <!-- Hint bar baked into SVG -->
+        <rect x="0" y="548" width="960" height="32" fill="rgba(240,208,80,0.92)"/>
+        <text x="480" y="561" text-anchor="middle" font-family="'Press Start 2P',monospace" font-size="7" fill="#2a1a0a" letter-spacing="1">CLICK FRIDGE FOR INGREDIENTS MODE  ·  CLICK THE POT FOR FREE CONSTRUCTION</text>
+        <text x="480" y="574" text-anchor="middle" font-family="'Press Start 2P',monospace" font-size="5.5" fill="#2a1a0a" opacity="0.65">[ click the cookbook for saved recipes ]</text>
       </svg>
     </div>
-    <div class="kitchen-hint" style="margin:0;border-radius:0;border-left:none;border-right:none;border-bottom:none;flex-shrink:0;">
-      CLICK FRIDGE FOR INGREDIENTS MODE &nbsp;&middot;&nbsp; CLICK THE POT FOR FREE CONSTRUCTION<br>
-      <span style="font-size:6px;opacity:0.7;">[ click the cookbook for saved recipes ]</span>
-    </div>
+
   </div>
 </div>
 
